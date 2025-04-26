@@ -31,7 +31,10 @@ paths:
             application/json:
               schema:
                 type: object
-                additionalProperties: true
+                properties:
+                  resolvedLibraryId:
+                    type: string
+                    description: "ID complet de la librairie résolue (ex: next@14.1.0)"
         '400':
           description: Erreur de requête
         '500':
@@ -66,7 +69,10 @@ paths:
             application/json:
               schema:
                 type: object
-                additionalProperties: true
+                properties:
+                  documentation:
+                    type: string
+                    description: "Documentation en texte brut ou markdown"
         '400':
           description: Erreur de requête
         '500':
