@@ -1,0 +1,14 @@
+{
+  "name": "context7-mcp-http-api",
+  "version": "1.0.0",
+  "description": "API HTTP pour Context7 MCP (Upstash) - résolution d'ID et docs de librairies.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "morgan": "^1.10.0"
+  }
+}

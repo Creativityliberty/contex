@@ -1,0 +1,91 @@
+openapi: 3.0.3
+info:
+  title: Context7 MCP HTTP API
+  description: API HTTP pour interagir avec Context7 MCP (Upstash). Permet de résoudre des IDs de librairies et d'obtenir la documentation associée.
+  version: 1.0.0
+servers:
+  - url: https://your-render-url.onrender.com
+    description: Déploiement Render
+  - url: http://localhost:3000
+    description: Local
+paths:
+  /resolve-library-id:
+    post:
+      summary: Résoudre l'ID context7 d'une librairie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - libraryName
+              properties:
+                libraryName:
+                  type: string
+                  example: lodash
+      responses:
+        '200':
+          description: ID résolu
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Paramètre manquant
+        '500':
+          description: Erreur serveur
+  /get-library-docs:
+    post:
+      summary: Obtenir la documentation d'une librairie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - context7CompatibleLibraryID
+              properties:
+                context7CompatibleLibraryID:
+                  type: string
+                  example: npm:lodash@4.17.21
+                topic:
+                  type: string
+                  example: map
+                tokens:
+                  type: integer
+                  example: 256
+      responses:
+        '200':
+          description: Documentation trouvée
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Paramètre manquant
+        '500':
+          description: Erreur serveur
+  /restart-context7:
+    post:
+      summary: Redémarrer le process Context7 MCP
+      responses:
+        '200':
+          description: Redémarrage réussi
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Erreur serveur
+  /healthz:
+    get:
+      summary: Vérification de santé
+      responses:
+        '200':
+          description: Serveur OK
+          content:
+            application/json:
+              schema:
+                type: object
