@@ -23,7 +23,7 @@ paths:
               properties:
                 libraryName:
                   type: string
-                  description: Le nom de la librairie (ex: "next", "react", etc.)
+                  description: "Le nom de la librairie (ex: next, react, etc.)"
       responses:
         '200':
           description: Résultat de la résolution
@@ -52,13 +52,13 @@ paths:
               properties:
                 context7CompatibleLibraryID:
                   type: string
-                  description: ID de la librairie Context7
+                  description: "ID de la librairie Context7"
                 topic:
                   type: string
-                  description: Sujet spécifique (ex: "routing", "hooks") (optionnel)
+                  description: "Sujet spécifique (ex: routing, hooks) (optionnel)"
                 tokens:
                   type: integer
-                  description: Nombre maximum de tokens à retourner (optionnel)
+                  description: "Nombre maximum de tokens à retourner (optionnel)"
       responses:
         '200':
           description: Documentation récupérée
