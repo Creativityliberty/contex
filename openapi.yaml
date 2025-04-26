@@ -4,7 +4,7 @@ info:
   description: API HTTP pour interagir avec Context7 MCP (Upstash). Permet de résoudre des IDs de librairies et d'obtenir la documentation associée.
   version: 1.0.0
 servers:
-  - url: https://your-render-url.onrender.com
+  - url: https://context7-api.onrender.com
     description: Déploiement Render
   - url: http://localhost:3000
     description: Local

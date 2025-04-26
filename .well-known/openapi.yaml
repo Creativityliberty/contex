@@ -6,7 +6,7 @@ info:
     Permet de résoudre les ID de librairies et de récupérer de la documentation à jour.
   version: 1.0.0
 servers:
-  - url: https://ton-domaine.com  # 🔥 remplace par ton vrai domaine plus tard
+  - url: https://context7-api.onrender.com
 paths:
   /resolve-library-id:
     post:
