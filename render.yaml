@@ -9,11 +9,4 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-    
-    # Pour servir le port dynamique imposé par Render
-    # Express écoute déjà sur process.env.PORT dans server.js
     healthCheckPath: /healthz
-    routes:
-      - type: rewrite
-        source: /.well-known/openapi.yaml
-        destination: /.well-known/openapi.yaml
