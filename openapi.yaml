@@ -79,6 +79,7 @@ paths:
                 type: object
         '500':
           description: Erreur serveur
+  # 'healthz' est une convention standard pour les endpoints de health check (z = endpoint système)
   /healthz:
     get:
       summary: Vérification de santé

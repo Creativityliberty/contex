@@ -121,6 +121,55 @@ app.post('/restart-context7', (req, res) => {
   res.json({ message: 'Context7 MCP server restarted' });
 });
 
+// Page d'accueil simple
+app.get('/', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>Context7 MCP HTTP API</title>
+        <style>
+          body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: #333; }
+          h1 { color: #2563eb; }
+          code { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; font-size: 0.9em; }
+          .endpoint { background: #f8fafc; border-left: 4px solid #2563eb; padding: 12px; margin: 16px 0; border-radius: 4px; }
+          a { color: #2563eb; text-decoration: none; }
+          a:hover { text-decoration: underline; }
+        </style>
+      </head>
+      <body>
+        <h1>Context7 MCP HTTP API</h1>
+        <p>API HTTP pour interagir avec Context7 MCP (Upstash). Permet de résoudre des IDs de librairies et d'obtenir la documentation associée.</p>
+        
+        <h2>Endpoints disponibles :</h2>
+        
+        <div class="endpoint">
+          <h3>POST /resolve-library-id</h3>
+          <p>Résout l'ID context7 d'une librairie</p>
+          <code>{ "libraryName": "nom_librairie" }</code>
+        </div>
+        
+        <div class="endpoint">
+          <h3>POST /get-library-docs</h3>
+          <p>Récupère la doc d'une librairie</p>
+          <code>{ "context7CompatibleLibraryID": "...", "topic": "...", "tokens": ... }</code>
+        </div>
+        
+        <div class="endpoint">
+          <h3>POST /restart-context7</h3>
+          <p>Redémarre le process MCP Context7</p>
+        </div>
+        
+        <div class="endpoint">
+          <h3>GET /healthz</h3>
+          <p>Vérifie que le serveur tourne</p>
+        </div>
+        
+        <p>Documentation OpenAPI disponible à : <a href="/.well-known/openapi.yaml">/.well-known/openapi.yaml</a></p>
+      </body>
+    </html>
+  `);
+});
+
 app.get('/healthz', (req, res) => {
   res.json({ status: 'ok' });
 });
