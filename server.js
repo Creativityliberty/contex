@@ -87,7 +87,12 @@ app.post('/resolve-library-id', async (req, res) => {
       method: 'resolve-library-id',
       params: { libraryName }
     });
-    res.json(response);
+    
+    if (response && response.result) {
+      return res.json({ resolvedLibraryId: response.result });
+    } else {
+      return res.status(500).json({ error: 'Invalid response from Context7 MCP' });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -107,7 +112,12 @@ app.post('/get-library-docs', async (req, res) => {
         tokens
       }
     });
-    res.json(response);
+    
+    if (response && response.result) {
+      return res.json({ documentation: response.result });
+    } else {
+      return res.status(500).json({ error: 'Invalid response from Context7 MCP' });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
