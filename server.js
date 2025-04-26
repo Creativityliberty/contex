@@ -1,8 +1,8 @@
 import express from 'express';
-import { spawn } from 'child_process';
 import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { searchLibraries, fetchLibraryDocumentation, formatSearchResults } from './api.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -18,117 +18,58 @@ const API_KEY = process.env.API_KEY || 'changeme'; // Pour Render, à définir d
 app.use(express.json());
 app.use(morgan('combined'));
 
-
-let context7;
-
-function startContext7() {
-  context7 = spawn('npx', ['-y', '@upstash/context7-mcp@latest'], {
-    stdio: ['pipe', 'pipe', 'pipe']
-  });
-  context7.stdout.setEncoding('utf8');
-  context7.stderr.setEncoding('utf8');
-  context7.on('error', (err) => {
-    console.error('❌ MCP process error:', err);
-  });
-  context7.on('close', (code) => {
-    console.log(`⚠️ MCP process exited with code ${code}`);
-    context7 = null;
-  });
-}
-
-startContext7();
-
-function sendCommandToContext7(command) {
-  return new Promise((resolve, reject) => {
-    if (!context7) {
-      return reject(new Error('MCP server not running'));
-    }
-    let output = '';
-    let errorOutput = '';
-    const onData = (data) => {
-      output += data;
-      if (output.includes('\n')) {
-        try {
-          const jsonResponse = JSON.parse(output.trim());
-          cleanup();
-          resolve(jsonResponse);
-        } catch (e) {
-          cleanup();
-          reject(new Error('Invalid JSON response: ' + output));
-        }
-      }
-    };
-    const onError = (data) => {
-      errorOutput += data;
-    };
-    const onExit = () => {
-      cleanup();
-      reject(new Error('MCP process exited unexpectedly'));
-    };
-    function cleanup() {
-      context7.stdout.removeListener('data', onData);
-      context7.stderr.removeListener('data', onError);
-      context7.removeListener('exit', onExit);
-    }
-    context7.stdout.on('data', onData);
-    context7.stderr.on('data', onError);
-    context7.on('exit', onExit);
-    context7.stdin.write(JSON.stringify(command) + '\n');
-  });
-}
+// Valeurs par défaut
+const DEFAULT_TOKENS = 5000;
 
 app.post('/resolve-library-id', async (req, res) => {
   const { libraryName } = req.body;
   if (!libraryName) {
     return res.status(400).json({ error: 'libraryName is required' });
   }
+  
   try {
-    const response = await sendCommandToContext7({
-      method: 'resolve-library-id',
-      params: { libraryName }
-    });
+    // Recherche directe via l'API Context7
+    const searchResponse = await searchLibraries(libraryName);
     
-    if (response && response.result) {
-      return res.json({ resolvedLibraryId: response.result });
-    } else {
-      return res.status(500).json({ error: 'Invalid response from Context7 MCP' });
+    if (!searchResponse || !searchResponse.results || searchResponse.results.length === 0) {
+      return res.status(404).json({ error: 'No libraries found' });
     }
+    
+    // Prendre le premier résultat comme meilleure correspondance
+    const bestMatch = searchResponse.results[0];
+    
+    // Retourner l'ID formaté selon le schéma OpenAPI
+    return res.json({ resolvedLibraryId: bestMatch.id });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error resolving library ID:', error);
+    return res.status(500).json({ error: error.message || 'Internal server error' });
   }
 });
 
 app.post('/get-library-docs', async (req, res) => {
-  const { context7CompatibleLibraryID, topic, tokens } = req.body;
+  const { context7CompatibleLibraryID, topic, tokens = DEFAULT_TOKENS } = req.body;
+  
   if (!context7CompatibleLibraryID) {
     return res.status(400).json({ error: 'context7CompatibleLibraryID is required' });
   }
+  
   try {
-    const response = await sendCommandToContext7({
-      method: 'get-library-docs',
-      params: {
-        context7CompatibleLibraryID,
-        topic,
-        tokens
-      }
+    // Récupération directe via l'API Context7
+    const docs = await fetchLibraryDocumentation(context7CompatibleLibraryID, { 
+      topic, 
+      tokens: Math.max(tokens, DEFAULT_TOKENS) // S'assurer d'avoir au moins le minimum de tokens
     });
     
-    if (response && response.result) {
-      return res.json({ documentation: response.result });
-    } else {
-      return res.status(500).json({ error: 'Invalid response from Context7 MCP' });
+    if (!docs) {
+      return res.status(404).json({ error: 'Documentation not found' });
     }
+    
+    // Retourner la documentation selon le schéma OpenAPI
+    return res.json({ documentation: docs });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error fetching library docs:', error);
+    return res.status(500).json({ error: error.message || 'Internal server error' });
   }
-});
-
-app.post('/restart-context7', (req, res) => {
-  if (context7) {
-    context7.kill();
-  }
-  startContext7();
-  res.json({ message: 'Context7 MCP server restarted' });
 });
 
 // Page d'accueil simple
